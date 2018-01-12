@@ -46,7 +46,7 @@ import vn.plusplusc.fuwo.model.MyEntry;
 
 @Controller
 @SessionAttributes("roles")
-public class AppController {
+public class UserController {
 
 	@Autowired
 	UserService userService;
@@ -70,9 +70,14 @@ public class AppController {
 
 	@RequestMapping(value = { "/user/registration" }, method = RequestMethod.POST, produces = "application/json")
 	@ResponseBody
-	public Object saveUser(@RequestBody User user) {
-		int index = user.getEmail().indexOf('@');
-		String ssoId = user.getEmail().substring(0, index);
+	public Object register(@RequestBody User user) {
+		String ssoId = "";
+		if(!"".equals(user.getPhone())){
+			ssoId = user.getPhone();
+		}else{
+			int index = user.getEmail().indexOf('@');
+		    ssoId = user.getEmail().substring(0, index);
+		}
 		if (!userService.isUserSSOUnique(user.getId(), ssoId)) {
 			FieldError ssoError = new FieldError("user", "ssoId", messageSource.getMessage("non.unique.ssoId",
 					new String[] { user.getSsoId() }, Locale.getDefault()));
@@ -84,8 +89,7 @@ public class AppController {
 				new Date());
 		persistentTokenRepository.createNewToken(persistentToken);
 		userService.saveUser(user);
-		ArrayList<MyEntry<String, Object>> arr = 
-			    new ArrayList<MyEntry<String, Object>>();
+		ArrayList<MyEntry<String, Object>> arr = new ArrayList<MyEntry<String, Object>>();
 		MyEntry<String, Object> entry = new MyEntry<String, Object>("user", user);
 		arr.add(entry);
 		arr.add(new MyEntry<String, Object>("token", persistentToken));
@@ -109,8 +113,13 @@ public class AppController {
 	@RequestMapping(value = "/user/login", method = RequestMethod.POST)
 	@ResponseBody
 	public Object login(@RequestBody User user) {
-		int index = user.getEmail().indexOf('@');
-		String ssoId = user.getEmail().substring(0, index);
+		String ssoId = "";
+		if(!"".equals(user.getPhone())){
+			ssoId = user.getPhone();
+		}else{
+			int index = user.getEmail().indexOf('@');
+		    ssoId = user.getEmail().substring(0, index);
+		}
 		User dbuser = userService.findBySSO(ssoId);
 		if (dbuser != null) {
 			if (passwordEncoder.matches(user.getPassword(), dbuser.getPassword())) {
@@ -118,12 +127,43 @@ public class AppController {
 						HibernateTokenRepositoryImpl.generateSeriesData(),
 						HibernateTokenRepositoryImpl.generateTokenData(), new Date());
 				persistentTokenRepository.createNewToken(persistentToken);
-				return dbuser;
+				ArrayList<MyEntry<String, Object>> arr = new ArrayList<MyEntry<String, Object>>();
+				MyEntry<String, Object> entry = new MyEntry<String, Object>("user", dbuser);
+				arr.add(entry);
+				arr.add(new MyEntry<String, Object>("token", persistentToken));
+				return arr;
 			}
 			return "error";
 		}
 		return dbuser;
 
+	}
+
+	/**
+	 * This method will be called on form submission, handling POST request for
+	 * updating user in database. It also validates the user input
+	 */
+	@RequestMapping(value = { "/edit-user-{ssoId}" }, method = RequestMethod.POST)
+	public String updateUser(@Valid User user, @PathVariable String ssoId) {
+		userService.updateUser(user);
+		return "update";
+	}
+
+	/**
+	 * This method will delete an user by it's SSOID value.
+	 */
+	@RequestMapping(value = { "/delete-user-{ssoId}" }, method = RequestMethod.GET)
+	public String deleteUser(@PathVariable String ssoId) {
+		userService.deleteUserBySSO(ssoId);
+		return "delete";
+	}
+
+	/**
+	 * This method will provide UserProfile list to views
+	 */
+	@ModelAttribute("roles")
+	public List<UserProfile> initializeProfiles() {
+		return userProfileService.findAll();
 	}
 
 	private boolean isCurrentAuthenticationAnonymous() {

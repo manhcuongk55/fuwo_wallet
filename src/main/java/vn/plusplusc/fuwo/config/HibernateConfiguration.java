@@ -1,4 +1,4 @@
-package vn.plusplusc.fuwo.configuration;
+package vn.plusplusc.fuwo.config;
 
 import java.util.Properties;
 
@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement
-@ComponentScan({ "vn.plusplusc.fuwo.configuration" })
+@ComponentScan({ "vn.plusplusc.fuwo.config" })
 @PropertySource(value = { "classpath:application.properties" })
 public class HibernateConfiguration {
 

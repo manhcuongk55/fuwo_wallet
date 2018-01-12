@@ -1,4 +1,4 @@
-package vn.plusplusc.fuwo.configuration;
+package vn.plusplusc.fuwo.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -16,11 +16,17 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
 import vn.plusplusc.fuwo.converter.RoleToUserProfileConverter;
+import vn.plusplusc.fuwo.dao.AccountDAO;
+import vn.plusplusc.fuwo.dao.OrderDAO;
+import vn.plusplusc.fuwo.dao.ProductDAO;
+import vn.plusplusc.fuwo.dao.impl.AccountDAOImpl;
+import vn.plusplusc.fuwo.dao.impl.OrderDAOImpl;
+import vn.plusplusc.fuwo.dao.impl.ProductDAOImpl;
 
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = "vn.plusplusc.fuwo.configuration")
+@ComponentScan(basePackages = "vn.plusplusc.fuwo.config")
 public class AppConfig extends WebMvcConfigurerAdapter{
      
      
@@ -76,5 +82,24 @@ public class AppConfig extends WebMvcConfigurerAdapter{
     @Override
     public void configurePathMatch(PathMatchConfigurer matcher) {
         matcher.setUseRegisteredSuffixPatternMatch(true);
+    }
+    @Bean(name = "accountDAO")
+    public AccountDAO getApplicantDAO() {
+        return new AccountDAOImpl();
+    }
+ 
+    @Bean(name = "productDAO")
+    public ProductDAO getProductDAO() {
+        return new ProductDAOImpl();
+    }
+ 
+    @Bean(name = "orderDAO")
+    public OrderDAO getOrderDAO() {
+        return new OrderDAOImpl();
+    }
+     
+    @Bean(name = "accountDAO")
+    public AccountDAO getAccountDAO()  {
+        return new AccountDAOImpl();
     }
 }

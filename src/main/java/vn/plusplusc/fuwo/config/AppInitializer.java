@@ -1,4 +1,4 @@
-package vn.plusplusc.fuwo.configuration;
+package vn.plusplusc.fuwo.config;
 
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
